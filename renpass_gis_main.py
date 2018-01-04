@@ -9,9 +9,9 @@ Examples:
 
   renpass_gis_main.py -o gurobi path/to/scenario.csv path/to/scenario-seq.csv
 
-  python renpass_gis_main.py -o gurobi --remote --report
-  https://raw.githubusercontent.com/znes/FlEnS/features/ego-timeseries/open_eGo/SQ/status_quo.csv
-  https://raw.githubusercontent.com/znes/FlEnS/features/ego-timeseries/open_eGo/SQ/status_quo_seq.csv
+  python renpass_gis_main.py -o gurobi --remote
+  https://raw.githubusercontent.com/znes/FlEnS/master/open_eGo/SQ/status_quo.csv
+  https://raw.githubusercontent.com/znes/FlEnS/master/open_eGo/SQ/status_quo_seq.csv
 
 Arguments:
 
