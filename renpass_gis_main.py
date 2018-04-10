@@ -9,6 +9,10 @@ Examples:
 
   renpass_gis_main.py -o gurobi path/to/scenario.csv path/to/scenario-seq.csv
 
+  python renpass_gis_main.py -o gurobi --remote
+  https://raw.githubusercontent.com/znes/FlEnS/master/open_eGo/SQ/status_quo.csv
+  https://raw.githubusercontent.com/znes/FlEnS/master/open_eGo/SQ/status_quo_seq.csv
+
 Arguments:
 
   NODE_DATA                  CSV-file containing data for nodes and flows.
@@ -24,11 +28,13 @@ Options:
                              should always reflect the number of rows in SEQ_DATA.
                              It cannot be used to select / slice the data.
                              [default: 2014-01-01 00:00:00]
+     --remote                CSV-files given as urls. [default: False]
      --date-to=TIMESTAMP     End interval. [default: 2014-12-31 23:00:00]
      --version               Show version.
 """
 
 import os
+import requests
 import logging
 import pandas as pd
 
@@ -53,6 +59,31 @@ def stopwatch():
     last = stopwatch.now
     stopwatch.now = datetime.now()
     return str(stopwatch.now-last)[0:-4]
+
+
+def get_from_url(**arguments):
+    """ Download CSV-files and save them in the current working directory.
+
+    Returns
+    -----
+    arguments: dict
+        Updated arguments dictionary pointing to the new file-paths.
+    """
+
+    for n in ['NODE_DATA', 'SEQ_DATA']:
+        r = requests.get(arguments[n])
+
+        try:
+            assert r.status_code == 200
+            path = os.path.basename(arguments[n])
+            with open(path, 'wb') as f:
+                for chunk in r:
+                    f.write(chunk)
+            arguments[n] = path
+        except AssertionError:
+            logging.error('Could not retrieve %s.' % n)
+
+    return arguments
 
 
 def create_nodes(**arguments):
@@ -214,6 +245,10 @@ def main(**arguments):
     logging.info('Starting renpass_gis!')
 
     stopwatch()
+
+    # save remote csv-files in cwd
+    if arguments['--remote']:
+        arguments = get_from_url(**arguments)
 
     # create nodes from csv
     nodes = create_nodes(**arguments)
